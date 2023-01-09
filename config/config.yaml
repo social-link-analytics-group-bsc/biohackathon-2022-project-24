@@ -9,8 +9,8 @@ api_europepmc_params:
     root_url: https://europepmc.org/ftp/oa/pmcid.txt.gz
   archive_file: ./data/pmcid.txt.gz
   article_query_folder: ./data/query_articles/
-  article_human_folder: ./data/articles_human/
-  article_archive_folder: ./data/archive_articles/
+  article_human_folder: /gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/
+  article_archive_folder: /gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/
   pmcid_archive_location: ./data/pmcid_archive.txt
   pmcid_human_location: ./data/pmcid_humans.txt
   pmcid_species_location: ./data/pmcid_species.txt
@@ -19,6 +19,8 @@ api_europepmc_params:
 
 search_params:
   accepted_species: [human, Homo Sapiens]
+  ids_query_location: /gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/
+  ids_archive_location: /gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/
   dl_archive: true
   rerun_archive: false
   query:  eLIfe AND (HAS_FT:Y AND OPEN_ACCESS:Y )

@@ -1,3 +1,4 @@
+from distutils.command.config import config
 import requests
 from requests.exceptions import HTTPError
 
@@ -25,7 +26,7 @@ def get_request(url, params):
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
+        print(f"HTTP error occurred: {http_err}")
     except Exception as err:
         print(f'Other error occurred: {err}')
     else:
@@ -79,7 +80,7 @@ def retrievePmcids(root):
 
 
 def main():
-    api_root_article = config_all['api_europepmc_params']['rest_articles']['root_url']
+    api_root_article = config_all['api_europepmc_params']['rest_articles']['root_url']  
     ids_query_location = config_all['search_params']['ids_query_location']
     dl_archive = config_all['search_params']['dl_archive']
     rerun_archive = config_all['search_params']['rerun_archive']
@@ -87,14 +88,17 @@ def main():
     archive_url = config_all['api_europepmc_params']['archive_api']['root_url']
     archive_filelocation = config_all['api_europepmc_params']['archive_file']
     query = config_all['search_params']['query']
+
     if dl_archive is True:
         print('Downloading archive')
         list_pcmids = get_archive(archive_filelocation, archive_url, rerun_archive)
-        filename = ids_archive_location
+        filenames = ids_archive_location
 
     else:
         list_pcmids = getting_pmcids(query, api_root_article)
         filename = ids_query_location
+    
+    
     with open(filename, 'w') as f:
         for pmcid in list_pcmids:
             print(pmcid)

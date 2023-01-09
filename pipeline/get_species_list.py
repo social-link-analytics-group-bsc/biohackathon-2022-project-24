@@ -48,6 +48,8 @@ def get_species(pmcid, annotation_url):
             for d in dictionary['annotations']:
                 species = d['exact']
                 break
+        
+        print(pmcid, species)
         return pmcid, species
 
     except AttributeError:  # When not getting anything

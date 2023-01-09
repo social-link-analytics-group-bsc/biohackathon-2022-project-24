@@ -2,6 +2,8 @@ import requests
 from requests.exceptions import HTTPError
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from time import sleep
+import numpy as np 
 
 import logging
 import os
@@ -14,22 +16,20 @@ import urllib.parse
 import pandas as pd
 import argparse
 from lxml import etree as ET
-""" script to add more info """
+import multiprocessing as mp 
+from multiprocessing import  Pool
+
+
+""" 
+    Script that adds the MESH terms
+
+"""
 
 
 config_path = os.path.join(os.path.dirname(
     __file__), '../config', 'config.yaml')
 config_all = yaml.safe_load(open(config_path))
 
-
-def parse_xml(xmlString,id):
-    document = ET.fromstring(xmlString)
-    article_dict = {}
-    for elementtag in document.getiterator():
-        if elementtag.tag in ["year","aff","journal-id"]:
-            article_dict[elementtag.tag] = elementtag.text
-
-    return article_dict
 
 def get_request(url, params):
     try:
@@ -43,13 +43,7 @@ def get_request(url, params):
     else:
         return response
 
-'''
-def getMetdata(pmcid, search_api_url, payload):
-    pmcid = f'PMC:{pmcid[3:]}'
-    params = urllib.parse.urlencode(payload, quote_via=urllib.parse.quote)
-    result = get_request(search_api_url, params)
-    result_json = result.json()
-'''
+
 
 def getAnnotations(pmcid, annotation_api_url, params):
     result = get_request(annotation_api_url, params)
@@ -65,34 +59,83 @@ def retrieveAnnotations(pmcid, annotation_api_url, params):
             l.append(m.find('descriptorName').text)
     meta_dict['MESH'] = '|'.join(list(l))
 
+    print(meta_dict)
+
     return meta_dict
+
+def get_annotations(df):
+    annotation_array = []
+    for idx in df.itertuples():
+        annotations = retrieveAnnotations(idx.PMCID, annotation_api, xmldir)
+        annotation_array.append(annotations)
+    
+    return annotation_array    
+
+def parallelize_dataframe(df, func, n_cores=mp.cpu_count()):
+    df_split = np.array_split(df, n_cores)
+    pool = Pool(n_cores)
+    annotations_array = pool.map(func, df_split)
+    pool.close()
+    pool.join()
+    return annotations_array
 
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='This script will add more data to the dataframe')
-    parser.add_argument("-f", "--file", nargs=1, required=True, help="Input csv", metavar="PATH")
-    #parser.add_argument("-d", "--directory", nargs=1, required=True, help="Directory in which xml files are stored", metavar="PATH")
-    parser.add_argument("-m", "--meta", nargs=1, required=True, help="Directory in which xml files are stored", metavar="PATH")
+    parser.add_argument("-f", "--file", nargs=1, required=True, help="Input csv", metavar="PATH", default="./data/CS_gender_IF.csv")
+    parser.add_argument("-d", "--xmldir", nargs=1, required=True, help="Directory in which xml files are stored", metavar="PATH", default="/gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/")
     
     annotation_api = config_all['api_europepmc_params']['rest_articles']['root_url']
 
     args = parser.parse_args()
     file = args.file[0]
-    meta = args.meta[0]
+    xmldir = args.xmldir[0]
 
-    df = pd.read_csv(file)
+    # df = pd.read_csv(file)
 
-    annots = []
+    # annotation_array = []
+    # for idx in df.itertuples():
+    #     annotations = retrieveAnnotations(idx.PMCID, annotation_api, xmldir)
+    #     annotation_array.append(annotations)
+    
+    # df_ann = pd.DataFrame(annotation_array)
+    # print(df_ann)
 
-    for idx in df.itertuples():
-        annotations = retrieveAnnotations(idx.PMCID, annotation_api, meta)
-        annots.append(annotations)
+    if not os.path.isfile("./data/PMCID_MESH.csv"):
+        df = pd.read_csv(file)
+        annots = parallelize_dataframe(df, get_annotations) # array of dicts
+        df_ann = pd.DataFrame(annots)
+        df_ann.to_csv("./data/PMCID_MESH.csv") # first download the data, then manipulate it to obtain the correct format
+    else:
+        df_ann = pd.read_csv("./data/PMCID_MESH.csv")
+        df_ann_melted = df_ann.melt("0", value_name="value").drop("value", axis=1).drop("variable", axis=1)
+        df_ann_array = [json.loads(x.replace("\'", "\"")) for x in df_ann_melted.iloc[:,0].values]
+        df_ann_ok = pd.DataFrame(df_ann_array)
+        print(df_ann_ok.head())
 
 
-    df_ann = pd.DataFrame(annots)
+    # print(df_ann.head())
 
-    print(df_ann)
+    # result = pd.merge(df.reset_index(drop=True), df_ann.reset_index(drop=True), on="PMCID", how="left")
+    # result.to_csv("CS_gender_IF_MESH.csv", index=False)
 
-    result = pd.merge(df.reset_index(drop=True), df_ann.reset_index(drop=True), on="PMCID", how="left")
-    result.to_csv("new_data_with_mesh_terms.csv", index=False)
+
+
+
+# def parse_xml(xmlString,id):
+#     document = ET.fromstring(xmlString)
+#     article_dict = {}
+#     for elementtag in document.getiterator():
+#         if elementtag.tag in ["year","aff","journal-id"]:
+#             article_dict[elementtag.tag] = elementtag.text
+
+#     return article_dict
+
+# '''
+# def getMetdata(pmcid, search_api_url, payload):
+#     pmcid = f'PMC:{pmcid[3:]}'
+#     params = urllib.parse.urlencode(payload, quote_via=urllib.parse.quote)
+#     result = get_request(search_api_url, params)
+#     result_json = result.json()
+# '''

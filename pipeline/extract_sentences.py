@@ -26,14 +26,14 @@ def find_candidate_sentences(text, relevant_tokens, get_null_sentences=False):
 
     if get_null_sentences:  # get also those IDs where there is no match
         if len(interest_sentences) == 0:
-            return
+            interest_sentences = " "
 
     return interest_sentences
 
 def parsing_arguments(parser):
-    parser.add_argument("--data_path", type=str, default="data/articles_human/",
+    parser.add_argument("--data_path", type=str, default="/gpfs/projects/bsc08/shared_projects/BioHackathon2022/articles_human/JSONL_files/",
                         help='Tasks to evaluate')
-    parser.add_argument("--out", type=str, default='data/candidate_sentences.csv',
+    parser.add_argument("--out", type=str, default='data/pre_CS.csv',
                         help='Tasks to evaluate')
     return parser
 
@@ -45,7 +45,7 @@ def main():
 
     count_articles = 0
     interesting_tokens = ['man', 'woman', 'male', 'female', 'men', 'women', 'males', 'females']
-    header = ["PMCID", "tokenized_METHODS", "keywords"]
+    header = ["PMCID", "tokenized_METHODS"]
 
     open(args.out, 'w')
 
@@ -68,6 +68,7 @@ def main():
             # json_df_clean.drop("TABLE", inplace=True)
 
         sentences = find_candidate_sentences(data["METHODS"], interesting_tokens, get_null_sentences=True)
+        
         if sentences:
 
             with open(args.out, 'a') as o:
@@ -76,9 +77,6 @@ def main():
                     writer.writerow(header)
 
                 for sentence in sentences:
-                    # filename = os.path.basename(file[:-6]).split("archive_articles_tagged")[1]
-                    # pmcid
-
                     try:  # Only when "full" df is used
                         writer.writerow([pmcid, sentence, json_df_clean["KEYWORDS"]])
                     except:

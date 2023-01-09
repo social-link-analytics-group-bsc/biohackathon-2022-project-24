@@ -9,13 +9,15 @@ python -m pip install -r requirements.txt
 ```
 
 To download the sample data and transform to json:
+
 ```
 python use_api.py 
 ```
 
 Currently the sample comes from the query "eLIfe AND ((HAS_FT:Y AND OPEN_ACCESS:Y)) AND (((SRC:MED OR SRC:PMC OR SRC:AGR OR SRC:CBA) NOT (PUB_TYPE:"Review")))"
 
-If you want to explore different sets of data go to: https://europepmc.org/
+If you want to explore different sets of data go to: <https://europepmc.org/>
+
 * Do your query
 * Download the ids in "Export citations" and save the result in data/
 * Indicate the new file in the config "ids_file_location"
@@ -25,6 +27,7 @@ If you want to explore different sets of data go to: https://europepmc.org/
 ### Tables
 
 Explore all the tables in the jsons by running (we did not use it, no info in the tables):
+
 ```
 python explore_tables.py
 ```
@@ -32,13 +35,9 @@ python explore_tables.py
 ### Methods
 
 Find the sentences containing the tokens ['man', 'woman', 'male', 'female', 'men', 'women', 'males', 'females'] with a number around it:
+
 ```
 python explore_methods.py
-```
-
-Find the correct numbers in the extracted sentences:
-```
-python get_sex_bias.py --data $SENTENCES --out $RESULTS --model output/bert-base-uncased-en/sbe.py_8_0.00005_date_22-11-10_time_14-55-26
 ```
 
 ## get article info
@@ -49,8 +48,7 @@ get metadata info given a csv containing pmcids and directory containing the art
 python more_filtering.py -f data/ids-10.csv -d data/articles/        
 ```
 
-
-get annotation info given a csv containing pmcids and an entity type (e.g., `Organisms`) 
+get annotation info given a csv containing pmcids and an entity type (e.g., `Organisms`)
 
 ```
 python add_annotation_info.py -f data/ids-10.csv  -a Organisms
@@ -58,7 +56,7 @@ python add_annotation_info.py -f data/ids-10.csv  -a Organisms
 python add_annotation_info.py -f data/ids-10.csv  -a Diseases
 ```
 
-List of entities : 
+List of entities :
 
 ```
 * Organisms
@@ -72,7 +70,7 @@ List of entities :
 * [and more else...](https://europepmc.org/AnnotationsApi#/)
 ```
 
-get list of mesh terms associated to articles given a csv containing pmcids 
+get list of mesh terms associated to articles given a csv containing pmcids
 
 ```
 add_metadata.py -f new_data.csv  -m mesh
