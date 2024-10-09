@@ -40,7 +40,7 @@ def _extract_labels(example):
         for span in example["spans"]:
             if span["token_start"] == span["token_end"]:
                 label = span["label"]
-                # FIXME As soon as it is fixed in prodigy, can remove the if
+                # FIXME: As soon as it is fixed in prodigy, can remove the if
                 if label == "n_fem":
                     label = "n_female"
                 if label == "p_fem":
@@ -49,13 +49,13 @@ def _extract_labels(example):
                     label = "perc_female"
                 value = example["tokens"][span["token_start"]]["id"]
                 token_to_label.setdefault(label, []).append(value)
-            # FIXME no idea what this part does, it is Blanca code
+            # TODO: no idea what this part does, it is Blanca code
             else:
                 for r in range(
                     span["token_start"], span["token_end"] + 1
                 ):  # TODO: finish this
                     label = span["label"]
-                    # FIXME As soon as it is fixed in prodigy, can remove the if
+                    # FIXME: As soon as it is fixed in prodigy, can remove the if
                     if label == "n_fem":
                         label = "n_female"
                     if label == "p_fem":

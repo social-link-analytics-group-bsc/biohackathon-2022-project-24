@@ -1,11 +1,9 @@
 import sys
 import argparse
-import ast
 import json
 import os
 import datetime
 import logging
-from typing import Optional
 
 from langchain.evaluation import JsonEditDistanceEvaluator
 from datasets import DatasetDict
