@@ -1,5 +1,5 @@
 # Exlude articles download
-
+data/
 */data/articles/*
 */data/pmcid_txt.gz
 */data/*.txt

@@ -41,7 +41,22 @@ db_params:
   table_sections: sections
   table_metadata: article_metadata
   table_inference: inference
- 
+
+agent_params:
+    use_bsc: False
+    test_decision_json:  ./data/results/agent_extraction_test_decision.jsonl
+    llm_model:
+      local:
+        name: "qwen3:14b"
+        port: 11434
+      bsc: 
+        name: "/gpfs/projects/bsc02/llm_models/huggingface_models/Qwen3-32B"
+        port: 8000
+    llm_connection:
+        host: http://localhost
+        api_end: v1
+        api_key: ollama
+
 llm_params:
   eval_result_path: ./data/results/evaluation_models.json
   model_outdir: ./llm_models/
