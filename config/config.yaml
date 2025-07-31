@@ -20,7 +20,7 @@ api_europepmc_params:
   xml_origin: api # can be either 'api' if connect to the api or 'files' if use dl files
 
 search_params:
-  rerun_archive: true
+  rerun_archive: false
   query:  eLIfe AND (HAS_FT:Y AND OPEN_ACCESS:Y )
   # found using the script species_exploration.ipynb for manual exploration of the different terms
   human_terms: [human, humans, man, homo sapiens, h. sapiens, homo_sapiens]

@@ -27,7 +27,23 @@ gpus=${gpus:-1} # fallback to 1 if detection fails
 
 echo "[VLLM] Detected $gpus GPU(s) for launch"
 
+PORT=8001
 # ----------------------------
 # Run vLLM launcher
 # ----------------------------
-vllm-launch --tensor-parallel-size "$gpus" "$@"
+vllm-launch --tensor-parallel-size "$gpus" --port $PORT" -$@" &
+timeout=600
+elapsed=0
+
+echo "[VLLM] Waiting for vLLM server to be ready (timeout: ${timeout}s)..."
+until curl -s "http://localhost:$PORT/health" >/dev/null; do
+  sleep 1
+  elapsed=$((elapsed + 1))
+  if [ "$elapsed" -ge "$timeout" ]; then
+    echo "[ERROR] vLLM server did not respond to /health within $timeout seconds."
+    exit 1
+  fi
+done
+
+echo "[VLLM] vLLM server is healthy. Launching agent..."
+python llm_agent.py
